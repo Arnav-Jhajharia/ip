@@ -10,10 +10,15 @@ public class Parser {
         String trimmed = input.trim();
         if (trimmed.isEmpty()) throw new UnknownCommandException("(empty)");
 
+        String[] parts = trimmed.split("\\s+", 2);
+        String cmd = parts[0];
+        String arg = (parts.length >= 2) ? parts[1] : "";
 
-        return switch (trimmed) {
+        return switch (cmd) {
+            case "list"    -> new ListCommand();
+            case "todo"    -> new AddCommand(arg);
             case "bye"     -> new ByeCommand();
-            default        -> new ParrotCommand(input);
+            default        -> throw new UnknownCommandException("Not a known command");
         };
     }
 

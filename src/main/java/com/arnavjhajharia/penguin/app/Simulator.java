@@ -2,16 +2,16 @@ package com.arnavjhajharia.penguin.app;
 
 
 import com.arnavjhajharia.penguin.common.exceptions.PenguinException;
-import com.arnavjhajharia.penguin.common.exceptions.UnknownCommandException;
 import com.arnavjhajharia.penguin.logic.Parser;
 import com.arnavjhajharia.penguin.logic.commands.Command;
+import com.arnavjhajharia.penguin.model.TaskList;
 
 import java.util.Scanner;
 
 
 public class Simulator {
     private final Parser parser = new Parser();
-
+    private TaskList tasks;
     public void introduction() {
         String penguinStart =
                 "          .--.                    \n" +
@@ -26,7 +26,9 @@ public class Simulator {
         System.out.println("Let's start!");
         System.out.println("-------------------------------");
     }
-
+    public Simulator() {
+        tasks = new TaskList(100);
+    }
 
 
     public void start(Scanner sc) {
@@ -39,7 +41,7 @@ public class Simulator {
                 Command cmd = parser.parse(prompt);
                 if (cmd.isExit()) { end(); return; }
 
-                String body = String.valueOf(cmd.execute());
+                String body = String.valueOf(cmd.execute(tasks));
                 System.out.println("--------------------------------");
                 System.out.println(body);
                 System.out.println("--------------------------------");
