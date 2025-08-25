@@ -16,7 +16,7 @@ public class Parser {
 
         return switch (cmd) {
             case "list"    -> new ListCommand();
-            case "todo"    -> new AddCommand(arg);
+            case "add"    -> new AddCommand(arg);
             case "bye"     -> new ByeCommand();
             default        -> throw new UnknownCommandException("Not a known command");
         };
