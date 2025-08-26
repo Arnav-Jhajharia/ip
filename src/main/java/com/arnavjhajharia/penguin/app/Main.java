@@ -14,9 +14,7 @@ public class Main {
         Simulator s = new Simulator();
 
         s.start(sc);
-
     }
-
 
 
 }

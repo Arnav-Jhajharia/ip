@@ -18,11 +18,32 @@ public class AddCommand implements Command {
         if (raw == null || raw.isBlank()) {
             String expected = switch (type) {
                 case TODO -> "todo <description>";
-                case DEADLINE -> "deadline <desc> /by <yyyy-mm-dd>";
-                case EVENT -> "event <desc> /from <time> /to <time>";
+                case DEADLINE -> "deadline <desc> /<when>";
+                case EVENT -> "event <desc> /<time> /<time>";
             };
             throw new MissingArgumentException(expected);
         }
+
+        // Validation step
+        boolean valid = switch (type) {
+            case TODO -> !raw.isBlank();
+            case DEADLINE -> raw.contains("/") && raw.indexOf("/") != raw.length() - 1;
+            case EVENT -> {
+                int count = raw.length() - raw.replace("/", "").length();
+                yield count >= 2; // must have at least 2 slashes
+            }
+        };
+
+        if (!valid) {
+            String expected = switch (type) {
+                case TODO -> "todo <description>";
+                case DEADLINE -> "deadline <desc> /<when>";
+                case EVENT -> "event <desc> /<time> /<time>";
+            };
+            throw new MissingArgumentException("Invalid format. Expected: " + expected);
+        }
+
         return tasks.add(raw, type); // Let TaskList parse fields as you already do
     }
+
 }
