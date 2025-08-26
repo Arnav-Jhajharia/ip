@@ -86,6 +86,21 @@ public class TaskList {
                 .append(t);
     }
 
+    public StringBuilder delete(int idx) {
+        if (isInvalidIndex(idx)) {
+            return new StringBuilder("Bro that task number doesn’t exist.");
+        }
+        Task removed = tasks.remove(idx);
+        StringBuilder sb = new StringBuilder();
+        sb.append(" Noted. I've removed this task:\n")
+                .append("   ").append(removed).append("\n")
+                .append(" Now you have ")
+                .append(size())
+                .append(size() == 1 ? " task" : " tasks")
+                .append(" in the list.");
+        return sb;
+    }
+
     public int size() {
         return tasks.size();
     }

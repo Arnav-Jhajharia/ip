@@ -23,6 +23,7 @@ public class Parser {
             case "event"   -> new AddCommand(arg, TaskType.EVENT);
             case "mark"    -> requireArgThen(new MarkCommand(arg, true), arg, "mark <index>");
             case "unmark"  -> requireArgThen(new MarkCommand(arg, false), arg, "unmark <index>");
+            case "delete"  -> requireArgThen(new DeleteCommand(arg), arg, "delete <index>");
             case "bye"     -> new ByeCommand();
             default        -> throw new UnknownCommandException(cmd);
         };
