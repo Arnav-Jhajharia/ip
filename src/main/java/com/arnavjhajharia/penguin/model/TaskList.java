@@ -89,19 +89,14 @@ public class TaskList {
                 yield new Deadline(desc, nextId, deadline);
             }
             case "E" -> {
-                String extra = parts.length >= 4 ? parts[3].trim() : "";
-                // Try to split into start/end if possible.
-                String start = extra;
-                String end = "";
-                if (extra.contains(" to ")) {
-                    String[] se = extra.split("\\s+to\\s+", 2);
-                    start = se[0].trim();
-                    end = se.length > 1 ? se[1].trim() : "";
-                } else if (extra.contains("-")) {
-                    String[] se = extra.split("\\s*-\\s*", 2);
-                    start = se[0].trim();
-                    end = se.length > 1 ? se[1].trim() : "";
+
+                if (parts.length < 5) {
+                    throw new IllegalArgumentException(
+                            "Invalid Event line. Expected: E | <0/1> | <desc> | yyyy-MM-dd'T'HH:mm | yyyy-MM-dd'T'HH:mm"
+                    );
                 }
+                String start = parts[3].trim();
+                String end   = parts[4].trim();
                 yield new Event(desc, nextId, start, end);
             }
             default -> null;
