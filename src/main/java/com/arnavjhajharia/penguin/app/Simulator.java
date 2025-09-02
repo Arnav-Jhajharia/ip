@@ -47,6 +47,6 @@ public class Simulator {
     private void shutdown() {
         tasks.save();
         ui.showExit();
-        // Do NOT System.exit() here; let the outer Main decide.
+
     }
 }
