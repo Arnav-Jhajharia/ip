@@ -18,7 +18,9 @@ public abstract class Task {
         isDone = true;
     }
 
-
+    public boolean isDone() {
+        return isDone;
+    }
 
     public String toString() {
 
@@ -28,6 +30,10 @@ public abstract class Task {
         );
 
     }
+
+    public abstract String toStorageLine();
+
+    protected String doneFlag() { return isDone ? "1" : "0"; }
 
 
 

@@ -1,5 +1,6 @@
 package com.arnavjhajharia.penguin.model;
 
+import com.arnavjhajharia.penguin.logic.FileParser;
 import com.arnavjhajharia.penguin.model.task.Deadline;
 import com.arnavjhajharia.penguin.model.task.Event;
 import com.arnavjhajharia.penguin.model.task.Task;
@@ -7,15 +8,109 @@ import com.arnavjhajharia.penguin.model.task.Todo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class TaskList {
 
     private final List<Task> tasks;
     private final int limit;
+    private Optional<String> fileName;
 
     public TaskList(int limit) {
         this.tasks = new ArrayList<>();
         this.limit = limit;
+        this.fileName = Optional.empty();
+    }
+
+    public TaskList(int limit, String fileName) {
+        this.limit = limit;
+        this.fileName = Optional.ofNullable(fileName);
+        this.tasks = new ArrayList<>();
+        loadFromFileIfPresent();   // <<— load on construction
+    }
+
+    public void loadFromFile(String filePath) {
+        this.fileName = Optional.ofNullable(filePath);
+        loadFromFileIfPresent();
+    }
+
+    private void loadFromFileIfPresent() {
+        if (fileName.isEmpty()) return;
+
+        List<String> lines = FileParser.readLinesFromFile(fileName.get());
+        for (String line : lines) {
+            if (tasks.size() >= limit) break;
+            Task parsed = parseLineToTask(line, tasks.size());
+            if (parsed != null) {
+                tasks.add(parsed);
+            }
+        }
+    }
+
+    public boolean save() {
+        return fileName.filter(this::saveToFile).isPresent();
+    }
+
+    public boolean saveToFile(String filePath) {
+        List<String> lines = tasks.stream()
+                .map(Task::toStorageLine)   // <<— polymorphic call
+                .collect(Collectors.toList());
+        return FileParser.writeLinesToFile(filePath, lines);
+    }
+
+
+
+    /**
+     * Supported formats:
+     * T | 1 | read book
+     * D | 0 | return book | June 6th
+     * E | 0 | project meeting | Aug 6th 2-4pm
+     * E | 1 | standup | Aug 7th 10am to 11am
+     */
+    private Task parseLineToTask(String line, int nextId) {
+        if (line == null) return null;
+        String trimmed = line.trim();
+        if (trimmed.isEmpty()) return null;
+
+        // Split on pipes with optional surrounding whitespace
+        String[] parts = trimmed.split("\\s*\\|\\s*");
+        // Expect at least: type | done | desc
+        if (parts.length < 3) return null;
+
+        String type = parts[0].trim().toUpperCase();
+        String doneFlag = parts[1].trim();
+        String desc = parts[2].trim();
+
+        Task t = switch (type) {
+            case "T" -> new Todo(desc, nextId);
+            case "D" -> {
+                String deadline = parts.length >= 4 ? parts[3].trim() : "";
+                yield new Deadline(desc, nextId, deadline);
+            }
+            case "E" -> {
+                String extra = parts.length >= 4 ? parts[3].trim() : "";
+                // Try to split into start/end if possible.
+                String start = extra;
+                String end = "";
+                if (extra.contains(" to ")) {
+                    String[] se = extra.split("\\s+to\\s+", 2);
+                    start = se[0].trim();
+                    end = se.length > 1 ? se[1].trim() : "";
+                } else if (extra.contains("-")) {
+                    String[] se = extra.split("\\s*-\\s*", 2);
+                    start = se[0].trim();
+                    end = se.length > 1 ? se[1].trim() : "";
+                }
+                yield new Event(desc, nextId, start, end);
+            }
+            default -> null;
+        };
+
+        if (t != null && ("1".equals(doneFlag) || "true".equalsIgnoreCase(doneFlag))) {
+            t.markDone();
+        }
+        return t;
     }
 
     public StringBuilder list() {
@@ -35,23 +130,20 @@ public class TaskList {
         }
 
         StringBuilder returnText = new StringBuilder();
-        String[] parts = prompt.split(" /"); // keeps your existing input style
+        String[] parts = prompt.split(" /");
 
         Task task = null;
         switch (type) {
             case TODO -> {
-                // todo <desc>
                 String desc = parts[0];
                 task = new Todo(desc, tasks.size());
             }
             case DEADLINE -> {
-                // deadline <desc> /by <...>
                 String desc = parts[0];
                 String by = parts.length > 1 ? parts[1] : "";
                 task = new Deadline(desc, tasks.size(), by);
             }
             case EVENT -> {
-                // event <desc> /from <...> /to <...>
                 String desc = parts[0];
                 String from = parts.length > 1 ? parts[1] : "";
                 String to = parts.length > 2 ? parts[2] : "";
@@ -109,4 +201,6 @@ public class TaskList {
     public boolean isInvalidIndex(int id) {
         return id < 0 || id >= tasks.size();
     }
+
+
 }

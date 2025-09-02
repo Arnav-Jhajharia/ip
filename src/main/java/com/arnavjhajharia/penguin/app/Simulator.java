@@ -26,8 +26,8 @@ public class Simulator {
         System.out.println("Let's start!");
         System.out.println("-------------------------------");
     }
-    public Simulator() {
-        tasks = new TaskList(100);
+    public Simulator(String filePath) {
+        tasks = new TaskList(100, filePath);
     }
 
 
@@ -73,7 +73,7 @@ public class Simulator {
                       /'\\_   _/`\\
                       \\___)=(___/
                 """;
-
+        tasks.save();
         System.out.println(penguinExit);
         System.exit(0);
     }
