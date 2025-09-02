@@ -1,84 +1,52 @@
 package com.arnavjhajharia.penguin.app;
 
-
 import com.arnavjhajharia.penguin.common.exceptions.PenguinException;
 import com.arnavjhajharia.penguin.logic.Parser;
 import com.arnavjhajharia.penguin.logic.commands.Command;
+import com.arnavjhajharia.penguin.logic.commands.CommandResult;
 import com.arnavjhajharia.penguin.model.TaskList;
-
-import java.util.Scanner;
-
+import com.arnavjhajharia.penguin.ui.Ui;
 
 public class Simulator {
     private final Parser parser = new Parser();
-    private TaskList tasks;
-    public void introduction() {
-        String penguinStart =
-                "          .--.                    \n" +
-                        "         |o_o |   PENGUIN v0.1\n" +
-                        "         |:_/ |   chill. simple. smooth.\n" +
-                        "        //   \\\\ \\\\   \n" +
-                        "       (|     | )   🥤  [Oreo Shake Inside]\n" +
-                        "      /'\\\\_   _/`\\\\\n" +
-                        "      \\\\___)=(___/\n";
-        System.out.println(penguinStart);
-        System.out.println("-------------------------------");
-        System.out.println("Let's start!");
-        System.out.println("-------------------------------");
-    }
-    public Simulator(String filePath) {
-        tasks = new TaskList(100, filePath);
+    private final TaskList tasks;
+    private final Ui ui;
+
+    public Simulator(String filePath, Ui ui) {
+        this.tasks = new TaskList(100, filePath);
+        this.ui = ui;
     }
 
-
-    public void start(Scanner sc) {
-
-        introduction();
+    public void start() {
+        ui.showIntro();
 
         while (true) {
-            String prompt = sc.nextLine();
+            String prompt = ui.readLine();
+            if (prompt == null) { // EOF / input closed: behave like bye
+                shutdown();
+                return;
+            }
+
             try {
                 Command cmd = parser.parse(prompt);
-                if (cmd.isExit()) { end(); return; }
+                CommandResult result = cmd.execute(tasks);
+                ui.showDivider();
+                ui.showText(result.message());
+                ui.showDivider();
 
-                String body = String.valueOf(cmd.execute(tasks));
-                System.out.println("--------------------------------");
-                System.out.println(body);
-                System.out.println("--------------------------------");
+                if (result.isExit()) {
+                    shutdown();
+                    return;
+                }
+            } catch (PenguinException e) {
+                ui.showError(e.getMessage());
             }
-            catch(PenguinException e) {
-                System.out.println("--------------------------------");
-                System.out.println("Error: " + e.getMessage());
-                System.out.println("--------------------------------");
-            }
-
-
-
-
         }
     }
 
-    private void end() {
-        String penguinExit = """
-                ======================================
-                        Thanks for using PENGUIN
-                          Have a chill day 🐧🥤
-                ======================================
-                
-                          .--.                    
-                         |o_o |   
-                         |:_/ |   goodbye!
-                        //   \\ \\   
-                       (|     | )  
-                      /'\\_   _/`\\
-                      \\___)=(___/
-                """;
+    private void shutdown() {
         tasks.save();
-        System.out.println(penguinExit);
-        System.exit(0);
+        ui.showExit();
+        // Do NOT System.exit() here; let the outer Main decide.
     }
-
-
-
-
 }

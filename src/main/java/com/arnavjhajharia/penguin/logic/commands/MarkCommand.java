@@ -13,13 +13,14 @@ public class MarkCommand implements Command {
     }
 
     @Override
-    public StringBuilder execute(TaskList tasks) throws InvalidIndexException {
+    public CommandResult execute(TaskList tasks) throws InvalidIndexException {
         int idx;
         try { idx = Integer.parseInt(rawIndex) - 1; }
         catch (NumberFormatException e) { throw new InvalidIndexException(rawIndex); }
 
         if (tasks.isInvalidIndex(idx)) throw new InvalidIndexException(idx);
 
-        return markDone ? tasks.markDone(idx) : tasks.markUndone(idx);
+        String msg = (markDone ? tasks.markDone(idx) : tasks.markUndone(idx)).toString();
+        return CommandResult.of(msg);
     }
 }

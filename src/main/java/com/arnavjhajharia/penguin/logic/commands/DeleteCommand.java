@@ -11,7 +11,7 @@ public class DeleteCommand implements Command {
     }
 
     @Override
-    public StringBuilder execute(TaskList tasks) throws InvalidIndexException {
+    public CommandResult execute(TaskList tasks) throws InvalidIndexException {
         int idx;
         try {
             idx = Integer.parseInt(rawIndex) - 1; // user is 1-based
@@ -21,6 +21,7 @@ public class DeleteCommand implements Command {
         if (tasks.isInvalidIndex(idx)) throw new InvalidIndexException(idx);
 
         // Let TaskList do the actual removal + message formatting
-        return tasks.delete(idx);
+        String msg = tasks.delete(idx).toString();
+        return CommandResult.of(msg);
     }
 }

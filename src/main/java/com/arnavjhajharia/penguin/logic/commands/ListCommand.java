@@ -4,7 +4,10 @@ import com.arnavjhajharia.penguin.model.TaskList;
 
 public class ListCommand implements Command {
     @Override
-    public StringBuilder execute(TaskList tasks) {
-        return tasks.list();
+    public CommandResult execute(TaskList tasks) {
+
+        String msg = tasks.list().toString();
+        return CommandResult.of(msg);
+
     }
 }

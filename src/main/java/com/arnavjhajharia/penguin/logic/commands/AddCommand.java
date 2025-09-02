@@ -14,7 +14,7 @@ public class AddCommand implements Command {
     }
 
     @Override
-    public StringBuilder execute(TaskList tasks) throws MissingArgumentException {
+    public CommandResult execute(TaskList tasks) throws MissingArgumentException {
         if (raw == null || raw.isBlank()) {
             String expected = switch (type) {
                 case TODO -> "todo <description>";
@@ -43,7 +43,8 @@ public class AddCommand implements Command {
             throw new MissingArgumentException("Invalid format. Expected: " + expected);
         }
 
-        return tasks.add(raw, type); // Let TaskList parse fields as you already do
+        String msg = tasks.add(raw, type).toString();
+        return CommandResult.of(msg);
     }
 
 }
