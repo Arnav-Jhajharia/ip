@@ -112,6 +112,8 @@ public class TaskList {
         return FileParser.writeLinesToFile(filePath, lines);
     }
 
+
+
     /**
      * Parses a single line into a concrete {@link Task}. The following storage formats are supported:
      * <pre>
@@ -292,6 +294,55 @@ public class TaskList {
     }
 
     /**
+     * Finds all tasks whose description matches the given search query.
+     * <p>
+     * The search is case-insensitive and matches if <em>all</em> words in the query
+     * appear in the task’s string representation.
+     * Example:
+     * <ul>
+     *   <li>query = "book" → matches any task containing "book"</li>
+     *   <li>query = "project Aug" → matches tasks containing both "project" and "Aug"</li>
+     * </ul>
+     * <p>
+     * The numbering in the result list corresponds to the original task indices
+     * (1-based), so users can still act on those tasks with commands like {@code mark 2}.
+     *
+     * @param query the raw search string entered by the user
+     * @return a formatted message with all matching tasks,
+     *         or a friendly message if no tasks are found
+     */
+    public StringBuilder find(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return new StringBuilder("Gimme something to search for, bro.");
+        }
+
+        String[] keywords = query.toLowerCase().trim().split("\\s+");
+        List<Integer> hits = new ArrayList<>();
+
+        for (int i = 0; i < tasks.size(); i++) {
+            String hay = tasks.get(i).toString().toLowerCase();
+            boolean allMatch = true;
+            for (String kw : keywords) {
+                if (!hay.contains(kw)) {
+                    allMatch = false;
+                    break;
+                }
+            }
+            if (allMatch) hits.add(i);
+        }
+
+        if (hits.isEmpty()) {
+            return new StringBuilder("No matches found, bro. Try different keywords.");
+        }
+
+        StringBuilder sb = new StringBuilder("Here’s what I found:\n");
+        for (int idx : hits) {
+            sb.append(idx + 1).append(". ").append(tasks.get(idx)).append("\n");
+        }
+        return sb;
+    }
+
+    /**
      * Returns the number of tasks currently stored.
      *
      * @return current size of the list
@@ -309,4 +360,6 @@ public class TaskList {
     public boolean isInvalidIndex(int id) {
         return id < 0 || id >= tasks.size();
     }
+
+
 }
