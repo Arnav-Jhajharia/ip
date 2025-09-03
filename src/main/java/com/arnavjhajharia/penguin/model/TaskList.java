@@ -13,16 +13,41 @@ import java.util.stream.Collectors;
 
 public class TaskList {
 
+    /**
+     * The backing list of tasks. Indexing is zero-based internally.
+     */
     private final List<Task> tasks;
+
+    /**
+     * Maximum number of tasks allowed in this list.
+     */
     private final int limit;
+
+    /**
+     * Optional file name associated with this task list. If present, it is used by {@link #save()} and
+     * as the source when loading on construction or via {@link #loadFromFile(String)}.
+     */
     private Optional<String> fileName;
 
+    /**
+     * Creates an empty {@code TaskList} with a maximum capacity but without an associated file.
+     * No loading is attempted.
+     *
+     * @param limit maximum number of tasks that can be contained
+     */
     public TaskList(int limit) {
         this.tasks = new ArrayList<>();
         this.limit = limit;
         this.fileName = Optional.empty();
     }
 
+    /**
+     * Creates an empty {@code TaskList} with a maximum capacity and an associated file name,
+     * then attempts to load tasks from that file immediately.
+     *
+     * @param limit    maximum number of tasks that can be contained
+     * @param fileName path of the file to load from and optionally save to later
+     */
     public TaskList(int limit, String fileName) {
         this.limit = limit;
         this.fileName = Optional.ofNullable(fileName);
@@ -30,11 +55,26 @@ public class TaskList {
         loadFromFileIfPresent();   // <<— load on construction
     }
 
+    /**
+     * Associates this list with the given file path and loads tasks from it, replacing none of the existing
+     * tasks but appending until the {@link #limit} is reached.
+     *
+     * @param filePath path to the file to read from
+     */
     public void loadFromFile(String filePath) {
         this.fileName = Optional.ofNullable(filePath);
         loadFromFileIfPresent();
     }
 
+    /**
+     * Attempts to load tasks from {@link #fileName} if present. Each line is parsed into a {@link Task}
+     * via {@link #parseLineToTask(String, int)} and appended until {@link #limit} is reached.
+     * <p>
+     * Lines that cannot be parsed (returning {@code null}) are skipped. An invalid {@code Event} line will
+     * throw an {@link IllegalArgumentException}.
+     *
+     * @throws IllegalArgumentException if an Event line has an invalid format (see {@link #parseLineToTask(String, int)})
+     */
     private void loadFromFileIfPresent() {
         if (fileName.isEmpty()) return;
 
@@ -48,10 +88,22 @@ public class TaskList {
         }
     }
 
+    /**
+     * Saves the current tasks to the associated {@link #fileName}, if present.
+     *
+     * @return {@code true} if a file name is present and saving succeeded; {@code false} if no file name is present or writing failed
+     */
     public boolean save() {
         return fileName.filter(this::saveToFile).isPresent();
     }
 
+    /**
+     * Saves the current tasks to the specified file path using each task's
+     * {@link Task#toStorageLine()} representation.
+     *
+     * @param filePath destination file path
+     * @return {@code true} if the write succeeded; {@code false} otherwise
+     */
     public boolean saveToFile(String filePath) {
         List<String> lines = tasks.stream()
                 .map(Task::toStorageLine)   // <<— polymorphic call
@@ -59,14 +111,25 @@ public class TaskList {
         return FileParser.writeLinesToFile(filePath, lines);
     }
 
-
-
     /**
-     * Supported formats:
+     * Parses a single line into a concrete {@link Task}. The following storage formats are supported:
+     * <pre>
      * T | 1 | read book
      * D | 0 | return book | June 6th
-     * E | 0 | project meeting | Aug 6th 2-4pm
-     * E | 1 | standup | Aug 7th 10am to 11am
+     * E | 0 | project meeting | 2025-08-06T14:00 | 2025-08-06T16:00
+     * E | 1 | standup | 2025-08-07T10:00 | 2025-08-07T11:00
+     * </pre>
+     * Notes:
+     * <ul>
+     *   <li>Pipes may be surrounded by arbitrary whitespace.</li>
+     *   <li>The "done" flag accepts {@code 1} / {@code 0} (and {@code true}/{@code false} for marking done).</li>
+     *   <li>Event timestamps are expected as ISO-like strings; the method does not parse them here—strings are passed through to {@link Event}.</li>
+     * </ul>
+     *
+     * @param line   the raw line from storage
+     * @param nextId the zero-based id to assign to the created task
+     * @return a {@link Task} instance if parsing succeeds; {@code null} if the line is ignorable/invalid for non-Event types
+     * @throws IllegalArgumentException if an Event line does not contain both start and end (minimum 5 parts)
      */
     private Task parseLineToTask(String line, int nextId) {
         if (line == null) return null;
@@ -108,6 +171,12 @@ public class TaskList {
         return t;
     }
 
+    /**
+     * Renders the current tasks as a user-facing list. If no tasks exist, returns a friendly message.
+     * The numbering shown to the user is one-based, even though internal storage is zero-based.
+     *
+     * @return a {@link StringBuilder} containing the formatted list or a no-items message
+     */
     public StringBuilder list() {
         if (tasks.isEmpty()) {
             return new StringBuilder("No items to list bro");
@@ -119,6 +188,20 @@ public class TaskList {
         return text;
     }
 
+    /**
+     * Adds a new task derived from a prompt according to the specified {@link TaskType}.
+     * The {@code prompt} is split by the delimiter {@code " /"} to extract optional parts:
+     * <ul>
+     *   <li>{@code TODO}: {@code &lt;desc&gt;}</li>
+     *   <li>{@code DEADLINE}: {@code &lt;desc&gt; /&lt;by&gt;}</li>
+     *   <li>{@code EVENT}: {@code &lt;desc&gt; /&lt;from&gt; /&lt;to&gt;}</li>
+     * </ul>
+     * If the list is at capacity, returns a message and does not add anything.
+     *
+     * @param prompt raw user input to derive task fields
+     * @param type   the type of task to create
+     * @return a user-facing confirmation message including the created task and the new count
+     */
     public StringBuilder add(String prompt, TaskType type) {
         if (tasks.size() >= limit) {
             return new StringBuilder("Too grindy bro — task list is full (limit " + limit + ").");
@@ -153,6 +236,12 @@ public class TaskList {
                 .append(String.format("Now you have %d tasks in your list", tasks.size()));
     }
 
+    /**
+     * Marks the task at the given zero-based index as done.
+     *
+     * @param id zero-based index into {@link #tasks}
+     * @return a user-facing confirmation or an error message if the index is invalid
+     */
     public StringBuilder markDone(int id) {
         if (isInvalidIndex(id)) {
             return new StringBuilder("Bro that task number doesn’t exist.");
@@ -163,6 +252,12 @@ public class TaskList {
                 .append(t);
     }
 
+    /**
+     * Marks the task at the given zero-based index as not done.
+     *
+     * @param id zero-based index into {@link #tasks}
+     * @return a user-facing confirmation or an error message if the index is invalid
+     */
     public StringBuilder markUndone(int id) {
         if (isInvalidIndex(id)) {
             return new StringBuilder("Bro that task number doesn’t exist.");
@@ -173,6 +268,13 @@ public class TaskList {
                 .append(t);
     }
 
+    /**
+     * Removes the task at the given zero-based index.
+     *
+     * @param idx zero-based index into {@link #tasks}
+     * @return a user-facing confirmation containing the removed task and the remaining count,
+     *         or an error message if the index is invalid
+     */
     public StringBuilder delete(int idx) {
         if (isInvalidIndex(idx)) {
             return new StringBuilder("Bro that task number doesn’t exist.");
@@ -188,14 +290,22 @@ public class TaskList {
         return sb;
     }
 
+    /**
+     * Returns the number of tasks currently stored.
+     *
+     * @return current size of the list
+     */
     public int size() {
         return tasks.size();
     }
 
-    // --- helpers ---
+    /**
+     * Determines whether the provided index is outside the bounds of the current list.
+     *
+     * @param id zero-based index to validate
+     * @return {@code true} if {@code id} is negative or not less than {@link #size()}, otherwise {@code false}
+     */
     public boolean isInvalidIndex(int id) {
         return id < 0 || id >= tasks.size();
     }
-
-
 }

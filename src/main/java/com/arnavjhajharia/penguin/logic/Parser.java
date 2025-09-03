@@ -5,8 +5,42 @@ import com.arnavjhajharia.penguin.common.exceptions.UnknownCommandException;
 import com.arnavjhajharia.penguin.logic.commands.*;
 import com.arnavjhajharia.penguin.model.TaskType;
 
+/**
+ * The {@code Parser} is responsible for translating raw user input
+ * strings into {@link Command} objects that can be executed.
+ * <p>
+ * It performs:
+ * <ul>
+ *   <li>Trimming and validation of input (non-null, non-empty).</li>
+ *   <li>Splitting into command keyword and argument string.</li>
+ *   <li>Dispatching to the correct {@link Command} subclass based on the keyword.</li>
+ *   <li>Enforcing required arguments for commands like {@code mark}, {@code unmark}, and {@code delete}.</li>
+ * </ul>
+ *
+ * @since 1.0
+ */
 public class Parser {
 
+    /**
+     * Parses a raw user input string into a {@link Command}.
+     * <p>
+     * Supported commands:
+     * <ul>
+     *   <li>{@code list} – Show all tasks.</li>
+     *   <li>{@code todo <desc>} – Add a new {@link com.arnavjhajharia.penguin.model.task.Todo}.</li>
+     *   <li>{@code deadline <desc> /<by>} – Add a new {@link com.arnavjhajharia.penguin.model.task.Deadline}.</li>
+     *   <li>{@code event <desc> /<from> /<to>} – Add a new {@link com.arnavjhajharia.penguin.model.task.Event}.</li>
+     *   <li>{@code mark <index>} – Mark a task as done.</li>
+     *   <li>{@code unmark <index>} – Mark a task as not done.</li>
+     *   <li>{@code delete <index>} – Remove a task.</li>
+     *   <li>{@code bye} – Exit the program.</li>
+     * </ul>
+     *
+     * @param input raw user input
+     * @return a corresponding {@link Command} object
+     * @throws UnknownCommandException   if the command keyword is not recognized or if input is null/empty
+     * @throws MissingArgumentException  if a required argument is missing for commands that need one
+     */
     public Command parse(String input) throws UnknownCommandException, MissingArgumentException {
         if (input == null) throw new UnknownCommandException("(null)");
         String trimmed = input.trim();
@@ -29,6 +63,15 @@ public class Parser {
         };
     }
 
+    /**
+     * Ensures that an argument string is present for commands that require one.
+     *
+     * @param c        the command to return if argument is valid
+     * @param arg      the argument string to check
+     * @param expected usage string for error reporting
+     * @return the provided command if argument is valid
+     * @throws MissingArgumentException if the argument is {@code null} or blank
+     */
     private Command requireArgThen(Command c, String arg, String expected) throws MissingArgumentException {
         if (arg == null || arg.isBlank()) throw new MissingArgumentException(expected);
         return c;
