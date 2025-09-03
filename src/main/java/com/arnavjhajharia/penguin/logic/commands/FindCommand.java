@@ -9,6 +9,7 @@ import com.arnavjhajharia.penguin.model.TaskList;
 public class FindCommand implements Command {
     private final String query;
 
+
     public FindCommand(String query) {
         this.query = query;
     }
