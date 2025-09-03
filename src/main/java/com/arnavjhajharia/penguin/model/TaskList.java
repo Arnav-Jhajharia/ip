@@ -188,6 +188,37 @@ public class TaskList {
         return sb;
     }
 
+    public StringBuilder find(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return new StringBuilder("Gimme something to search for, bro.");
+        }
+
+        String[] keywords = query.toLowerCase().trim().split("\\s+");
+        List<Integer> hits = new ArrayList<>();
+
+        for (int i = 0; i < tasks.size(); i++) {
+            String hay = tasks.get(i).toString().toLowerCase();
+            boolean allMatch = true;
+            for (String kw : keywords) {
+                if (!hay.contains(kw)) {
+                    allMatch = false;
+                    break;
+                }
+            }
+            if (allMatch) hits.add(i);
+        }
+
+        if (hits.isEmpty()) {
+            return new StringBuilder("No matches found, bro. Try different keywords.");
+        }
+
+        StringBuilder sb = new StringBuilder("Here’s what I found:\n");
+        for (int idx : hits) {
+            sb.append(idx + 1).append(". ").append(tasks.get(idx)).append("\n");
+        }
+        return sb;
+    }
+
     public int size() {
         return tasks.size();
     }
