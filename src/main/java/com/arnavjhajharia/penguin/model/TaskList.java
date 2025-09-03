@@ -1,15 +1,16 @@
 package com.arnavjhajharia.penguin.model;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import com.arnavjhajharia.penguin.logic.FileParser;
 import com.arnavjhajharia.penguin.model.task.Deadline;
 import com.arnavjhajharia.penguin.model.task.Event;
 import com.arnavjhajharia.penguin.model.task.Task;
 import com.arnavjhajharia.penguin.model.task.Todo;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class TaskList {
 
