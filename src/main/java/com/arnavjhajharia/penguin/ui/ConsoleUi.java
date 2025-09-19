@@ -58,7 +58,7 @@ public class ConsoleUi implements Ui {
                 
                           .--.                    
                          |o_o |   
-                         |:_/ |   goodbye!
+                        |:_/ |   Goodbye!
                         //   \\ \\   
                        (|     | )  
                       /'\\_   _/`\\
