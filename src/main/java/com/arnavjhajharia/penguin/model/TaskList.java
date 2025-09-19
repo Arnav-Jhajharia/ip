@@ -263,7 +263,7 @@ public class TaskList {
     public StringBuilder markDone(int id) {
         assertInvariants();
         if (isInvalidIndex(id)) {
-            return new StringBuilder("Bro that task number doesn’t exist.");
+            return new StringBuilder("Invalid task index.");
         }
         Task t = tasks.get(id);
         t.markDone();
@@ -281,7 +281,7 @@ public class TaskList {
     public StringBuilder markUndone(int id) {
         assertInvariants();
         if (isInvalidIndex(id)) {
-            return new StringBuilder("Bro that task number doesn’t exist.");
+            return new StringBuilder("Invalid task index.");
         }
         Task t = tasks.get(id);
         t.markUndone();
@@ -300,7 +300,7 @@ public class TaskList {
     public StringBuilder delete(int idx) {
         assertInvariants();
         if (isInvalidIndex(idx)) {
-            return new StringBuilder("Bro that task number doesn’t exist.");
+            return new StringBuilder("Invalid task index.");
         }
         Task removed = tasks.remove(idx);
         StringBuilder sb = new StringBuilder();
