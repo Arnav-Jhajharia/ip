@@ -304,12 +304,11 @@ public class TaskList {
         }
         Task removed = tasks.remove(idx);
         StringBuilder sb = new StringBuilder();
-        sb.append(" Noted. I've removed this task:\n")
-                .append("   ").append(removed).append("\n")
-                .append(" Now you have ")
-                .append(size())
-                .append(size() == 1 ? " task" : " tasks")
-                .append(" in the list.");
+        sb.append("Removed task:\n")
+                .append("  ").append(removed).append("\n")
+                .append("Remaining: ")
+                .append(size()).append(" ")
+                .append(size() == 1 ? "task" : "tasks");
         assertInvariants();
         return sb;
     }
