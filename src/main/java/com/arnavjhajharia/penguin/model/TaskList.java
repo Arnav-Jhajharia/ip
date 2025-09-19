@@ -37,9 +37,11 @@ public class TaskList {
      * @param limit maximum number of tasks that can be contained
      */
     public TaskList(int limit) {
+        assert limit > 0 : "limit must be positive";
         this.tasks = new ArrayList<>();
         this.limit = limit;
         this.fileName = Optional.empty();
+        assertInvariants();
     }
 
     /**
@@ -50,10 +52,13 @@ public class TaskList {
      * @param fileName path of the file to load from and optionally save to later
      */
     public TaskList(int limit, String fileName) {
+        assert limit > 0 : "limit must be positive";
+        assert fileName == null || !fileName.trim().isEmpty() : "fileName, if provided, must not be blank";
         this.limit = limit;
         this.fileName = Optional.ofNullable(fileName);
         this.tasks = new ArrayList<>();
         loadFromFileIfPresent();   // <<— load on construction
+        assertInvariants();
     }
 
     /**
@@ -63,8 +68,10 @@ public class TaskList {
      * @param filePath path to the file to read from
      */
     public void loadFromFile(String filePath) {
+        assert filePath != null && !filePath.isBlank() : "filePath must be non-null and non-blank";
         this.fileName = Optional.ofNullable(filePath);
         loadFromFileIfPresent();
+        assertInvariants();
     }
 
     /**
@@ -78,6 +85,7 @@ public class TaskList {
      */
     private void loadFromFileIfPresent() {
         if (fileName.isEmpty()) return;
+        assert fileName.isEmpty() || !fileName.get().trim().isEmpty() : "fileName must not be blank when present";
 
         List<String> lines = FileParser.readLinesFromFile(fileName.get());
         for (String line : lines) {
@@ -87,6 +95,7 @@ public class TaskList {
                 tasks.add(parsed);
             }
         }
+        assertInvariants();
     }
 
     /**
@@ -106,6 +115,7 @@ public class TaskList {
      * @return {@code true} if the write succeeded; {@code false} otherwise
      */
     public boolean saveToFile(String filePath) {
+        assert filePath != null && !filePath.isBlank() : "filePath must be non-null and non-blank";
         List<String> lines = tasks.stream()
                 .map(Task::toStorageLine)   // <<— polymorphic call
                 .collect(Collectors.toList());
@@ -135,6 +145,7 @@ public class TaskList {
      * @throws IllegalArgumentException if an Event line does not contain both start and end (minimum 5 parts)
      */
     private Task parseLineToTask(String line, int nextId) {
+        assert nextId >= 0 : "nextId must be non-negative";
         if (line == null) return null;
         String trimmed = line.trim();
         if (trimmed.isEmpty()) return null;
@@ -206,6 +217,8 @@ public class TaskList {
      * @return a user-facing confirmation message including the created task and the new count
      */
     public StringBuilder add(String prompt, TaskType type) {
+        assert type != null : "type must not be null";
+        assertInvariants();
         if (tasks.size() >= limit) {
             return new StringBuilder("Too grindy bro — task list is full (limit " + limit + ").");
         }
@@ -232,7 +245,9 @@ public class TaskList {
             }
         }
 
+        assert task != null : "created task must not be null";
         tasks.add(task);
+        assertInvariants();
         return returnText
                 .append("Damn busy bro! One more task has been added\t")
                 .append(task).append("\n")
@@ -246,11 +261,13 @@ public class TaskList {
      * @return a user-facing confirmation or an error message if the index is invalid
      */
     public StringBuilder markDone(int id) {
+        assertInvariants();
         if (isInvalidIndex(id)) {
             return new StringBuilder("Bro that task number doesn’t exist.");
         }
         Task t = tasks.get(id);
         t.markDone();
+        assertInvariants();
         return new StringBuilder("Damn you not chill, completing tasks and stuff! I've marked this task as done:\n")
                 .append(t);
     }
@@ -262,11 +279,13 @@ public class TaskList {
      * @return a user-facing confirmation or an error message if the index is invalid
      */
     public StringBuilder markUndone(int id) {
+        assertInvariants();
         if (isInvalidIndex(id)) {
             return new StringBuilder("Bro that task number doesn’t exist.");
         }
         Task t = tasks.get(id);
         t.markUndone();
+        assertInvariants();
         return new StringBuilder("Ah you were just lying to yourself. It's chill! I've marked this task as undone:\n")
                 .append(t);
     }
@@ -279,6 +298,7 @@ public class TaskList {
      *         or an error message if the index is invalid
      */
     public StringBuilder delete(int idx) {
+        assertInvariants();
         if (isInvalidIndex(idx)) {
             return new StringBuilder("Bro that task number doesn’t exist.");
         }
@@ -290,6 +310,7 @@ public class TaskList {
                 .append(size())
                 .append(size() == 1 ? " task" : " tasks")
                 .append(" in the list.");
+        assertInvariants();
         return sb;
     }
 
@@ -361,5 +382,14 @@ public class TaskList {
         return id < 0 || id >= tasks.size();
     }
 
+    /**
+     * Internal consistency checks that should always hold for a valid TaskList instance.
+     * These are enabled only when JVM assertions are turned on.
+     */
+    private void assertInvariants() {
+        assert tasks != null : "tasks list must not be null";
+        assert limit > 0 : "limit must be positive";
+        assert tasks.size() <= limit : "tasks size must not exceed limit";
+    }
 
 }
