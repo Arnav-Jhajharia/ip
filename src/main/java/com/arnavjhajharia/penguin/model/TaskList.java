@@ -315,36 +315,38 @@ public class TaskList {
     }
 
     /**
-     * Finds all tasks whose description matches the given search query.
+     * Finds tasks using a "BetterSearch" strategy.
      * <p>
-     * The search is case-insensitive and matches if <em>all</em> words in the query
-     * appear in the task’s string representation.
-     * Example:
-     * <ul>
-     *   <li>query = "book" → matches any task containing "book"</li>
-     *   <li>query = "project Aug" → matches tasks containing both "project" and "Aug"</li>
-     * </ul>
-     * <p>
-     * The numbering in the result list corresponds to the original task indices
-     * (1-based), so users can still act on those tasks with commands like {@code mark 2}.
+     * - Case-insensitive by default.
+     * - Matches if all query terms match the task text, where a term matches if:
+     *   - it is a quoted phrase present as a substring, OR
+     *   - it is a single token that is a substring of any word (partial match), OR
+     *   - it is within 1 edit (typo tolerance) of any word in the task text.
+     * - Example:
+     *   - query = book → matches "read a book" and also "booking" (partial)
+     *   - query = proj Aug → matches tasks containing both tokens (in any order)
+     *   - query = "team meeting" → matches phrase occurrences
      *
-     * @param query the raw search string entered by the user
-     * @return a formatted message with all matching tasks,
-     *         or a friendly message if no tasks are found
+     * The numbering in the result corresponds to original task indices (1-based).
      */
     public StringBuilder find(String query) {
         if (query == null || query.trim().isEmpty()) {
             return new StringBuilder("Gimme something to search for, bro.");
         }
 
-        String[] keywords = query.toLowerCase().trim().split("\\s+");
+        List<String> terms = extractQueryTerms(query);
         List<Integer> hits = new ArrayList<>();
 
         for (int i = 0; i < tasks.size(); i++) {
-            String hay = tasks.get(i).toString().toLowerCase();
+            String hay = tasks.get(i).toString();
+            String normHay = normalize(hay);
             boolean allMatch = true;
-            for (String kw : keywords) {
-                if (!hay.contains(kw)) {
+            for (String term : terms) {
+                boolean isPhrase = term.contains(" ");
+                boolean matched = isPhrase
+                        ? normHay.contains(term)
+                        : tokenMatches(normHay, term);
+                if (!matched) {
                     allMatch = false;
                     break;
                 }
@@ -361,6 +363,66 @@ public class TaskList {
             sb.append(idx + 1).append(". ").append(tasks.get(idx)).append("\n");
         }
         return sb;
+    }
+
+    private static String normalize(String s) {
+        return s == null ? "" : s.toLowerCase().trim();
+    }
+
+    private static List<String> extractQueryTerms(String raw) {
+        String q = normalize(raw);
+        List<String> terms = new ArrayList<>();
+        int i = 0;
+        while (i < q.length()) {
+            char c = q.charAt(i);
+            if (Character.isWhitespace(c)) { i++; continue; }
+            if (c == '"') {
+                int j = q.indexOf('"', i + 1);
+                if (j > i + 1) {
+                    terms.add(q.substring(i + 1, j).trim());
+                    i = j + 1;
+                    continue;
+                }
+            }
+            int j = i + 1;
+            while (j < q.length() && !Character.isWhitespace(q.charAt(j))) j++;
+            terms.add(q.substring(i, j));
+            i = j + 1;
+        }
+        // Remove empties
+        terms.removeIf(t -> t.isEmpty());
+        return terms;
+    }
+
+    private static boolean tokenMatches(String normHay, String token) {
+        if (token.isEmpty()) return true;
+        if (normHay.contains(token)) return true; // direct substring
+
+        // Compare against words for fuzzy match
+        String[] words = normHay.split("[^a-z0-9]+");
+        for (String w : words) {
+            if (w.isEmpty()) continue;
+            if (w.contains(token) || token.contains(w)) return true; // partial either way
+            if (token.length() >= 4 && isEditDistanceAtMostOne(w, token)) return true; // typo tolerance
+        }
+        return false;
+    }
+
+    // Optimized check for Levenshtein distance <= 1
+    private static boolean isEditDistanceAtMostOne(String a, String b) {
+        int la = a.length(), lb = b.length();
+        if (Math.abs(la - lb) > 1) return false;
+        int i = 0, j = 0, edits = 0;
+        while (i < la && j < lb) {
+            if (a.charAt(i) == b.charAt(j)) { i++; j++; continue; }
+            if (++edits > 1) return false;
+            if (la == lb) { i++; j++; }          // substitution
+            else if (la > lb) { i++; }            // deletion in a
+            else { j++; }                         // insertion in a
+        }
+        // Account for trailing char in longer string
+        if (i < la || j < lb) edits++;
+        return edits <= 1;
     }
 
     /**
