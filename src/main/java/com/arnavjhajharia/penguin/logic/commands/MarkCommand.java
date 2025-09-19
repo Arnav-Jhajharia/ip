@@ -17,7 +17,7 @@ import com.arnavjhajharia.penguin.model.TaskList;
  *
  * @since 1.0
  */
-public class MarkCommand implements Command {
+public final class MarkCommand implements Command {
 
     /**
      * Raw user input representing the task index to mark.

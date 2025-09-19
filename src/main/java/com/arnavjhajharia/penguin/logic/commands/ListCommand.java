@@ -14,7 +14,7 @@ import com.arnavjhajharia.penguin.model.TaskList;
  *
  * @since 1.0
  */
-public class ListCommand implements Command {
+public final class ListCommand implements Command {
 
     /**
      * Executes the list command on the given {@link TaskList}.

@@ -17,7 +17,7 @@ import com.arnavjhajharia.penguin.model.TaskList;
  *
  * @since 1.0
  */
-public class DeleteCommand implements Command {
+public final class DeleteCommand implements Command {
 
     /**
      * Raw user input representing the task index to delete.

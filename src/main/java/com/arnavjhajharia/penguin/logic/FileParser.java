@@ -19,7 +19,9 @@ import java.util.List;
  *
  * @since 1.0
  */
-public class FileParser {
+public final class FileParser {
+
+    private FileParser() { }
 
     /**
      * Reads all lines from the file at the given path.

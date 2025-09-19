@@ -11,7 +11,7 @@ import com.arnavjhajharia.penguin.model.TaskType;
  * for the specified {@link TaskType} (TODO, DEADLINE, or EVENT) before
  * attempting to add it to the task list.
  */
-public class AddCommand implements Command {
+public final class AddCommand implements Command {
 
     /** The raw user input for the task description and metadata. */
     private final String raw;
@@ -43,35 +43,34 @@ public class AddCommand implements Command {
      */
     @Override
     public CommandResult execute(TaskList tasks) throws MissingArgumentException {
-        if (raw == null || raw.isBlank()) {
-            String expected = switch (type) {
-                case TODO -> "todo <description>";
-                case DEADLINE -> "deadline <desc> /<when>";
-                case EVENT -> "event <desc> /<time> /<time>";
-            };
-            throw new MissingArgumentException(expected);
+        String safe = raw == null ? "" : raw;
+        if (safe.isBlank()) {
+            throw new MissingArgumentException(expectedUsage(type));
         }
 
         // Validation step for input format
         boolean valid = switch (type) {
-            case TODO -> !raw.isBlank();
-            case DEADLINE -> raw.contains("/") && raw.indexOf("/") != raw.length() - 1;
+            case TODO -> !safe.isBlank();
+            case DEADLINE -> safe.contains("/") && safe.indexOf("/") != safe.length() - 1;
             case EVENT -> {
-                int count = raw.length() - raw.replace("/", "").length();
+                int count = safe.length() - safe.replace("/", "").length();
                 yield count >= 2; // must have at least 2 slashes
             }
         };
 
         if (!valid) {
-            String expected = switch (type) {
-                case TODO -> "todo <description>";
-                case DEADLINE -> "deadline <desc> /<when>";
-                case EVENT -> "event <desc> /<time> /<time>";
-            };
-            throw new MissingArgumentException("Invalid format. Expected: " + expected);
+            throw new MissingArgumentException("Invalid format. Expected: " + expectedUsage(type));
         }
 
-        String msg = tasks.add(raw, type).toString();
+        String msg = tasks.add(safe, type).toString();
         return CommandResult.of(msg);
+    }
+
+    private static String expectedUsage(TaskType type) {
+        return switch (type) {
+            case TODO -> "todo <description>";
+            case DEADLINE -> "deadline <desc> /<when>";
+            case EVENT -> "event <desc> /<time> /<time>";
+        };
     }
 }

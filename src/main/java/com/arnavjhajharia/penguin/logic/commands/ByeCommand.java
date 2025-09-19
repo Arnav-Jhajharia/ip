@@ -9,7 +9,7 @@ import com.arnavjhajharia.penguin.model.TaskList;
  * is handled externally by the Simulator, allowing tests to intercept
  * and verify exit behavior without terminating the test process.
  */
-public class ByeCommand implements Command {
+public final class ByeCommand implements Command {
 
     /**
      * Executes the {@code ByeCommand}.

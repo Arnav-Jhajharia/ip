@@ -6,7 +6,7 @@ import com.arnavjhajharia.penguin.model.TaskList;
 /**
  * Command to find tasks containing given keywords.
  */
-public class FindCommand implements Command {
+public final class FindCommand implements Command {
     private final String query;
 
 

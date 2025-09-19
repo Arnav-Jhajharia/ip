@@ -17,6 +17,7 @@ import com.arnavjhajharia.penguin.model.TaskList;
  *
  * @since 1.0
  */
+@FunctionalInterface
 public interface Command {
 
     /**
