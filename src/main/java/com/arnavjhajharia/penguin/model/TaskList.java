@@ -396,14 +396,19 @@ public class TaskList {
 
     private static boolean tokenMatches(String normHay, String token) {
         if (token.isEmpty()) return true;
-        if (normHay.contains(token)) return true; // direct substring
+        if (normHay.contains(token)) return true; // direct substring across the whole text
 
-        // Compare against words for fuzzy match
+        final int MIN_PARTIAL = 3;
+        final int MIN_TYPO_LEN = 4;
+
+        // Compare against individual words
         String[] words = normHay.split("[^a-z0-9]+");
         for (String w : words) {
             if (w.isEmpty()) continue;
-            if (w.contains(token) || token.contains(w)) return true; // partial either way
-            if (token.length() >= 4 && isEditDistanceAtMostOne(w, token)) return true; // typo tolerance
+            // Partial match: token must be reasonably long, and match inside a word
+            if (token.length() >= MIN_PARTIAL && w.length() >= MIN_PARTIAL && w.contains(token)) return true;
+            // Typo tolerance: both sides reasonably long and within 1 edit
+            if (token.length() >= MIN_TYPO_LEN && w.length() >= MIN_TYPO_LEN && isEditDistanceAtMostOne(w, token)) return true;
         }
         return false;
     }
