@@ -193,7 +193,7 @@ public class TaskList {
      */
     public StringBuilder list() {
         if (tasks.isEmpty()) {
-            return new StringBuilder("No items to list bro");
+            return new StringBuilder("No tasks to list.");
         }
         StringBuilder text = new StringBuilder();
         for (int i = 0; i < tasks.size(); i++) {
