@@ -249,9 +249,9 @@ public class TaskList {
         tasks.add(task);
         assertInvariants();
         return returnText
-                .append("Damn busy bro! One more task has been added\t")
+                .append("Added task: ")
                 .append(task).append("\n")
-                .append(String.format("Now you have %d tasks in your list", tasks.size()));
+                .append(String.format("Total: %d", tasks.size()));
     }
 
     /**
