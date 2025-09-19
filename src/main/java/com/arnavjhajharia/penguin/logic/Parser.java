@@ -42,9 +42,7 @@ public class Parser {
      * @throws MissingArgumentException  if a required argument is missing for commands that need one
      */
     public Command parse(String input) throws UnknownCommandException, MissingArgumentException {
-        // Assertion: Parser should never be called with null input.
-        // (We still throw an exception if it happens, but this documents the invariant.)
-        assert input != null : "parse() received a null input";
+        if (input == null) throw new UnknownCommandException("(null)");
 
         String trimmed = input.trim();
 

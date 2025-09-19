@@ -24,6 +24,8 @@ javafx {
 application {
     // IMPORTANT: point to a tiny bootstrap (Launcher) that calls Application.launch(...)
     mainClass = 'com.arnavjhajharia.penguin.app.Launcher'
+    // Enable JVM assertions only for the model package (and subpackages)
+    applicationDefaultJvmArgs = ['-ea:com.arnavjhajharia.penguin.model...']
 }
 
 // You can keep Shadow, but GUI fat-jars can be tricky.
@@ -35,6 +37,10 @@ shadowJar {
 
 test {
     useJUnitPlatform()
+    // Disable Gradle's default global assertions; enable selectively via jvmArgs below
+    enableAssertions = false
+    // Enable JVM assertions only for the model package during tests
+    jvmArgs '-ea:com.arnavjhajharia.penguin.model...'
     testLogging {
         events "passed", "skipped", "failed"
         showExceptions true
@@ -48,4 +54,6 @@ test {
 // Not needed for GUI, but harmless to keep
 run {
     standardInput = System.in
+    // Enable JVM assertions only for the model package during 'gradle run'
+    jvmArgs '-ea:com.arnavjhajharia.penguin.model...'
 }
