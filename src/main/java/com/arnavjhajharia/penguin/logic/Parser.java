@@ -90,43 +90,6 @@ public class Parser {
      * @return the provided command if argument is valid
      * @throws MissingArgumentException if the argument is {@code null} or blank
      */
-    public Command parse(String input) throws UnknownCommandException, MissingArgumentException {
-        // Assertion: Parser should never be called with null input.
-        // (We still throw an exception if it happens, but this documents the invariant.)
-        assert input != null : "parse() received a null input";
-
-        String trimmed = input.trim();
-
-        // Assertion: after trimming, input should not be null (String#trim never returns null).
-        assert trimmed != null : "trimmed input unexpectedly null";
-
-        if (trimmed.isEmpty()) throw new UnknownCommandException("(empty)");
-
-        String[] parts = trimmed.split("\\s+", 2);
-
-        // Assertion: split must always produce at least one element.
-        assert parts.length >= 1 : "split on input produced empty parts array";
-
-        String cmd = parts[0];
-        String arg = (parts.length >= 2) ? parts[1] : "";
-
-        // Assertion: command keyword must never be blank here.
-        assert !cmd.isBlank() : "command keyword unexpectedly blank";
-
-        return switch (cmd) {
-            case "list"    -> new ListCommand();
-            case "todo"    -> new AddCommand(arg, TaskType.TODO);
-            case "deadline"-> new AddCommand(arg, TaskType.DEADLINE);
-            case "event"   -> new AddCommand(arg, TaskType.EVENT);
-            case "mark"    -> requireArgThen(new MarkCommand(arg, true), arg, "mark <index>");
-            case "unmark"  -> requireArgThen(new MarkCommand(arg, false), arg, "unmark <index>");
-            case "delete"  -> requireArgThen(new DeleteCommand(arg), arg, "delete <index>");
-            case "find"    -> requireArgThen(new FindCommand(arg), arg, "find <substring>");
-            case "bye"     -> new ByeCommand();
-            default        -> throw new UnknownCommandException(cmd);
-        };
-    }
-
     private Command requireArgThen(Command c, String arg, String expected) throws MissingArgumentException {
         // Assertion: 'expected' should never be null — it's a contract of this helper.
         assert expected != null : "expected usage string cannot be null";
