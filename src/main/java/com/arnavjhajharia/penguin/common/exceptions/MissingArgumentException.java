@@ -6,7 +6,9 @@ package com.arnavjhajharia.penguin.common.exceptions;
  * This exception provides feedback on the expected format of the command input,
  * making it easier for users to correct their input.
  */
-public class MissingArgumentException extends PenguinException {
+public final class MissingArgumentException extends PenguinException {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Constructs a new {@code MissingArgumentException} with a message that
@@ -15,6 +17,6 @@ public class MissingArgumentException extends PenguinException {
      * @param expected a description of the correct or expected command format
      */
     public MissingArgumentException(String expected) {
-        super("Missing/invalid arguments. Expected: " + expected);
+        super("Missing/invalid arguments. Expected: " + String.valueOf(expected));
     }
 }

@@ -1,9 +1,9 @@
 package com.arnavjhajharia.penguin.model.task;
 
 public abstract class Task {
-    int id;
-    String name;
-    boolean isDone;
+    protected final int id;
+    protected final String name;
+    protected boolean isDone;
 
 
     /**
@@ -39,6 +39,7 @@ public abstract class Task {
      *
      * @return a user-facing string representation of the task
      */
+    @Override
     public String toString() {
 
         return String.format("[%s] %s",

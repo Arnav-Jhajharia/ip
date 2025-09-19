@@ -14,7 +14,9 @@ package com.arnavjhajharia.penguin.common.exceptions;
  *
  * @since 1.0
  */
-public class InvalidIndexException extends PenguinException {
+public final class InvalidIndexException extends PenguinException {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Constructs an exception with a message referring to the raw string input
@@ -23,7 +25,7 @@ public class InvalidIndexException extends PenguinException {
      * @param raw the raw user input string representing an index
      */
     public InvalidIndexException(String raw) {
-        super("Invalid task index: \"" + raw + "\".");
+        super("Invalid task index: \"" + String.valueOf(raw) + "\".");
     }
 
     /**

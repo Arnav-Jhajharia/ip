@@ -7,7 +7,9 @@ package com.arnavjhajharia.penguin.common.exceptions;
  * within the application while preserving standard Java exception behavior.
  * All application-specific exceptions should subclass {@code PenguinException}.
  */
-public class PenguinException extends Exception {
+public abstract class PenguinException extends Exception {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Constructs a new {@code PenguinException} with the specified detail message.
@@ -16,5 +18,24 @@ public class PenguinException extends Exception {
      */
     public PenguinException(String message) {
         super(message);
+    }
+
+    /**
+     * Constructs a new {@code PenguinException} with the specified detail message and cause.
+     *
+     * @param message the detail message
+     * @param cause   the cause of this exception
+     */
+    public PenguinException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    /**
+     * Constructs a new {@code PenguinException} with the specified cause.
+     *
+     * @param cause the cause of this exception
+     */
+    public PenguinException(Throwable cause) {
+        super(cause);
     }
 }

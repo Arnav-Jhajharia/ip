@@ -7,7 +7,9 @@ package com.arnavjhajharia.penguin.common.exceptions;
  * This exception provides feedback to the user by including the unrecognized
  * command string in its message.
  */
-public class UnknownCommandException extends PenguinException {
+public final class UnknownCommandException extends PenguinException {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Constructs a new {@code UnknownCommandException} for the given command.
@@ -15,6 +17,6 @@ public class UnknownCommandException extends PenguinException {
      * @param cmd the unrecognized command entered by the user
      */
     public UnknownCommandException(String cmd) {
-        super("It's chill but what do you mean lol: \"" + cmd + "\".");
+        super("It's chill but what do you mean lol: \"" + String.valueOf(cmd) + "\".");
     }
 }
