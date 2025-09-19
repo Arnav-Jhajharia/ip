@@ -13,6 +13,8 @@ public abstract class Task {
      * @param id   the unique ID of the task
      */
     public Task(String task, int id) {
+        assert task != null : "task description must not be null";
+        assert id >= 0 : "id must be non-negative";
         name = task;
         this.id = id;
     }

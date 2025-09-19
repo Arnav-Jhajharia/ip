@@ -12,7 +12,7 @@ package com.arnavjhajharia.penguin.model.task;
  *
  * @since 1.0
  */
-public class Todo extends Task {
+public final class Todo extends Task {
 
     /**
      * Constructs a new {@code Todo} task with a description and identifier.

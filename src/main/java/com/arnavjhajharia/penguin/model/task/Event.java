@@ -19,7 +19,7 @@ import java.time.format.DateTimeParseException;
  *
  * @since 1.0
  */
-public class Event extends Task {
+public final class Event extends Task {
 
     /**
      * ISO formatter for parsing and formatting event datetimes.

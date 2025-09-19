@@ -18,7 +18,7 @@ import java.time.format.DateTimeParseException;
  *
  * @since 1.0
  */
-public class Deadline extends Task {
+public final class Deadline extends Task {
 
     /**
      * Formatter for parsing and formatting ISO date strings (yyyy-MM-dd).
