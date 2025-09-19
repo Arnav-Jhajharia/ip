@@ -14,7 +14,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-public class MainFx extends Application {
+public final class MainFx extends Application {
 
     private VBox dialogContainer;
     private ScrollPane scrollPane;

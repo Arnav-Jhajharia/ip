@@ -19,7 +19,7 @@ import com.arnavjhajharia.penguin.ui.Ui;
  *   <li>Persisting tasks and shutting down gracefully when the user exits.</li>
  * </ul>
  */
-public class Simulator {
+public final class Simulator {
 
     /** The parser that interprets raw user input into {@link Command} objects. */
     private final Parser parser = new Parser();
