@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'application'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'org.openjfx.javafxplugin' version '0.0.14'
 }
 
 repositories {
@@ -9,16 +10,33 @@ repositories {
 }
 
 dependencies {
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.10.0'
-    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.10.0'
+    // JUnit (unchanged)
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
+    testRuntimeOnly   'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+}
+
+// Match your JDK version. If you’re on Java 21, use 21.x; if on Java 17, use 17.x.
+javafx {
+    version = '17.0.16'   // or '17.0.10' if you’re strictly on Java 17
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
+}
+
+application {
+    // IMPORTANT: point to a tiny bootstrap (Launcher) that calls Application.launch(...)
+    mainClass = 'com.arnavjhajharia.penguin.app.Launcher'
+}
+
+// You can keep Shadow, but GUI fat-jars can be tricky.
+// Prefer Gradle’s run/distribution for JavaFX. If you keep it:
+shadowJar {
+    archiveBaseName = "penguin"
+    archiveClassifier = null
 }
 
 test {
     useJUnitPlatform()
-
     testLogging {
         events "passed", "skipped", "failed"
-
         showExceptions true
         exceptionFormat "full"
         showCauses true
@@ -27,15 +45,7 @@ test {
     }
 }
 
-application {
-    mainClass.set("com.arnavjhajharia.penguin.app.Main")
-}
-
-shadowJar {
-    archiveBaseName = "duke"
-    archiveClassifier = null
-}
-
-run{
+// Not needed for GUI, but harmless to keep
+run {
     standardInput = System.in
 }
