@@ -64,7 +64,7 @@ public final class MainFx extends Application {
         // Boot the Simulator on a background thread
         simulatorThread = new Thread(() -> {
             Ui ui = guiUi;
-            Simulator s = new Simulator("data/duke.txt", ui);
+            Simulator s = new Simulator("data/penguin.txt", ui);
             s.start();
         }, "Simulator");
         simulatorThread.setDaemon(true);
