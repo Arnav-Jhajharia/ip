@@ -1,8 +1,6 @@
 plugins {
     id 'java'
     id 'application'
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
-    id 'org.openjfx.javafxplugin' version '0.0.14'
 }
 
 repositories {
@@ -13,13 +11,23 @@ dependencies {
     // JUnit (unchanged)
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
     testRuntimeOnly   'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+
+    String javaFxVersion = '17.0.7'
+
+    implementation group: 'org.openjfx', name: 'javafx-base', version: javaFxVersion, classifier: 'win'
+    implementation group: 'org.openjfx', name: 'javafx-base', version: javaFxVersion, classifier: 'mac'
+    implementation group: 'org.openjfx', name: 'javafx-base', version: javaFxVersion, classifier: 'linux'
+    implementation group: 'org.openjfx', name: 'javafx-controls', version: javaFxVersion, classifier: 'win'
+    implementation group: 'org.openjfx', name: 'javafx-controls', version: javaFxVersion, classifier: 'mac'
+    implementation group: 'org.openjfx', name: 'javafx-controls', version: javaFxVersion, classifier: 'linux'
+    implementation group: 'org.openjfx', name: 'javafx-fxml', version: javaFxVersion, classifier: 'win'
+    implementation group: 'org.openjfx', name: 'javafx-fxml', version: javaFxVersion, classifier: 'mac'
+    implementation group: 'org.openjfx', name: 'javafx-fxml', version: javaFxVersion, classifier: 'linux'
+    implementation group: 'org.openjfx', name: 'javafx-graphics', version: javaFxVersion, classifier: 'win'
+    implementation group: 'org.openjfx', name: 'javafx-graphics', version: javaFxVersion, classifier: 'mac'
+    implementation group: 'org.openjfx', name: 'javafx-graphics', version: javaFxVersion, classifier: 'linux'
 }
 
-// Match your JDK version. If you’re on Java 21, use 21.x; if on Java 17, use 17.x.
-javafx {
-    version = '17.0.16'   // or '17.0.10' if you’re strictly on Java 17
-    modules = [ 'javafx.controls', 'javafx.fxml' ]
-}
 
 application {
     // IMPORTANT: point to a tiny bootstrap (Launcher) that calls Application.launch(...)
@@ -30,10 +38,7 @@ application {
 
 // You can keep Shadow, but GUI fat-jars can be tricky.
 // Prefer Gradle’s run/distribution for JavaFX. If you keep it:
-shadowJar {
-    archiveBaseName = "penguin"
-    archiveClassifier = null
-}
+
 
 test {
     useJUnitPlatform()
@@ -56,4 +61,11 @@ run {
     standardInput = System.in
     // Enable JVM assertions only for the model package during 'gradle run'
     jvmArgs '-ea:com.arnavjhajharia.penguin.model...'
+}
+
+// Add Main-Class to the JAR manifest so `java -jar` works
+jar {
+    manifest {
+        attributes 'Main-Class': application.mainClass.get()
+    }
 }
