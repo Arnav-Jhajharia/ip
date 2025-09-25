@@ -1,19 +1,21 @@
 plugins {
     id 'java'
     id 'application'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 repositories {
     mavenCentral()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 }
 
+
 dependencies {
-    // JUnit (unchanged)
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
-    testRuntimeOnly   'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+    String javaFxVersion = '17.0.7'
 
-    String javaFxVersion = '17.0.14'
-
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.10.0'
+    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.10.0'
+    implementation group: 'com.joestelmach', name: 'natty', version: '0.13'
     implementation group: 'org.openjfx', name: 'javafx-base', version: javaFxVersion, classifier: 'win'
     implementation group: 'org.openjfx', name: 'javafx-base', version: javaFxVersion, classifier: 'mac'
     implementation group: 'org.openjfx', name: 'javafx-base', version: javaFxVersion, classifier: 'linux'
@@ -28,26 +30,12 @@ dependencies {
     implementation group: 'org.openjfx', name: 'javafx-graphics', version: javaFxVersion, classifier: 'linux'
 }
 
-
-application {
-    // IMPORTANT: point to a tiny bootstrap (Launcher) that calls Application.launch(...)
-    mainClass = 'com.arnavjhajharia.penguin.app.Launcher'
-    // Enable JVM assertions only for the model package (and subpackages)
-    applicationDefaultJvmArgs = ['-ea:com.arnavjhajharia.penguin.model...']
-}
-
-// You can keep Shadow, but GUI fat-jars can be tricky.
-// Prefer Gradle’s run/distribution for JavaFX. If you keep it:
-
-
 test {
     useJUnitPlatform()
-    // Disable Gradle's default global assertions; enable selectively via jvmArgs below
-    enableAssertions = false
-    // Enable JVM assertions only for the model package during tests
-    jvmArgs '-ea:com.arnavjhajharia.penguin.model...'
+
     testLogging {
         events "passed", "skipped", "failed"
+
         showExceptions true
         exceptionFormat "full"
         showCauses true
@@ -56,16 +44,17 @@ test {
     }
 }
 
-// Not needed for GUI, but harmless to keep
-run {
-    standardInput = System.in
-    // Enable JVM assertions only for the model package during 'gradle run'
-    jvmArgs '-ea:com.arnavjhajharia.penguin.model...'
+application {
+    mainClass.set("com.arnavjhajharia.penguin.app.Launcher")
 }
 
-// Add Main-Class to the JAR manifest so `java -jar` works
-jar {
-    manifest {
-        attributes 'Main-Class': application.mainClass.get()
-    }
+shadowJar {
+    archiveBaseName = "Penguin"
+    archiveClassifier = null
+    archiveFileName = 'Penguin-v1.0.0.jar'
+}
+
+run{
+    standardInput = System.in
+    enableAssertions = true
 }
