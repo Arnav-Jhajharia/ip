@@ -85,8 +85,11 @@ public class GuiUi implements Ui {
     @Override
     public void showExit() {
         closed = true;
-        Platform.runLater(() -> dialogContainer.getChildren().add(
-                DialogBox.penguin("Goodbye! I’ll keep your tasks safe in the icebox. ❄️", penguinAvatar)
-        ));
+        Platform.runLater(() -> {
+            dialogContainer.getChildren().add(
+                    DialogBox.penguin("Goodbye! I’ll keep your tasks safe in the icebox. ❄️", penguinAvatar)
+            );
+            Platform.exit();
+        });
     }
 }

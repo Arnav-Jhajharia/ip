@@ -55,14 +55,18 @@ public final class AddCommand implements Command {
                 // Accept either "/<date>" or "/by <date>"
                 boolean hasSlash = safe.contains("/") && safe.indexOf("/") != safe.length() - 1;
                 boolean hasByToken = safe.toLowerCase().contains("/by ");
-                yield hasSlash || hasByToken;
+                // Require a non-empty description before the first slash token
+                boolean hasDesc = !extractDescriptionPrefix(safe).isBlank();
+                yield (hasSlash || hasByToken) && hasDesc;
             }
             case EVENT -> {
                 // Accept "/<from> /<to>" or "/from <from> /to <to>"
                 int count = safe.length() - safe.replace("/", "").length();
                 boolean hasMinTwoSlashes = count >= 2;
                 boolean hasFromToTokens = safe.toLowerCase().contains("/from ") && safe.toLowerCase().contains("/to ");
-                yield hasMinTwoSlashes || hasFromToTokens;
+                // Require a non-empty description before the first slash token
+                boolean hasDesc = !extractDescriptionPrefix(safe).isBlank();
+                yield (hasMinTwoSlashes || hasFromToTokens) && hasDesc;
             }
         };
 
@@ -80,5 +84,14 @@ public final class AddCommand implements Command {
             case DEADLINE -> "deadline <desc> /by <yyyy-MM-dd>";
             case EVENT -> "event <desc> /from <start> /to <end>";
         };
+    }
+
+    private static String extractDescriptionPrefix(String raw) {
+        if (raw == null) return "";
+        String s = raw.trim();
+        if (s.startsWith("/")) return ""; // immediately a token, so no desc
+        int idx = s.indexOf(" /");
+        if (idx < 0) return s; // no slash found, whole string considered desc
+        return s.substring(0, idx).trim();
     }
 }
