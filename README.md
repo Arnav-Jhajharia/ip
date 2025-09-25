@@ -18,13 +18,13 @@ Data file location: `data/penguin.txt` (created on first run).
   - Command: `todo <description>`
   - Example: `todo read book`
 - Deadline
-  - Command: `deadline <description> /<yyyy-MM-dd>`
-  - Example: `deadline submit iP /2025-12-03`
+  - Command: `deadline <description> /by <yyyy-MM-dd>`
+  - Example: `deadline submit iP /by 2025-12-03`
   - Stored as: `D | <0/1> | <description> | <yyyy-MM-dd>`
 - Event
-  - Command: `event <description> /<start> /<end>`
+  - Command: `event <description> /from <start> /to <end>`
   - Format: ISO local date-time `yyyy-MM-dd'T'HH:mm`
-  - Example: `event project meeting /2025-12-30T16:30 /2025-12-30T18:30`
+  - Example: `event project meeting /from 2025-12-30T16:30 /to 2025-12-30T18:30`
   - Stored as: `E | <0/1> | <description> | <start> | <end>`
 
 2) List tasks

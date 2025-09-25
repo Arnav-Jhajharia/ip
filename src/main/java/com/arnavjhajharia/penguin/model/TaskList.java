@@ -234,13 +234,24 @@ public class TaskList {
             }
             case DEADLINE -> {
                 String desc = parts[0];
-                String by = parts.length > 1 ? parts[1] : "";
+                String by = parts.length > 1 ? parts[1].trim() : "";
+                // Accept both "/<when>" and "/by <when>"
+                if (by.regionMatches(true, 0, "by ", 0, 3)) {
+                    by = by.substring(3).trim();
+                }
                 task = new Deadline(desc, tasks.size(), by);
             }
             case EVENT -> {
                 String desc = parts[0];
-                String from = parts.length > 1 ? parts[1] : "";
-                String to = parts.length > 2 ? parts[2] : "";
+                String from = parts.length > 1 ? parts[1].trim() : "";
+                String to = parts.length > 2 ? parts[2].trim() : "";
+                // Accept both "/<from> /<to>" and "/from <from> /to <to>"
+                if (from.regionMatches(true, 0, "from ", 0, 5)) {
+                    from = from.substring(5).trim();
+                }
+                if (to.regionMatches(true, 0, "to ", 0, 3)) {
+                    to = to.substring(3).trim();
+                }
                 task = new Event(desc, tasks.size(), from, to);
             }
         }

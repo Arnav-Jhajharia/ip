@@ -34,8 +34,8 @@ public class Parser {
      * <ul>
      *   <li>{@code list} – Show all tasks.</li>
      *   <li>{@code todo <desc>} – Add a new {@link com.arnavjhajharia.penguin.model.task.Todo}.</li>
-     *   <li>{@code deadline <desc> /<by>} – Add a new {@link com.arnavjhajharia.penguin.model.task.Deadline}.</li>
-     *   <li>{@code event <desc> /<from> /<to>} – Add a new {@link com.arnavjhajharia.penguin.model.task.Event}.</li>
+     *   <li>{@code deadline <desc> /by <yyyy-MM-dd>} – Add a new {@link com.arnavjhajharia.penguin.model.task.Deadline}.</li>
+     *   <li>{@code event <desc> /from <start> /to <end>} – Add a new {@link com.arnavjhajharia.penguin.model.task.Event}.</li>
      *   <li>{@code mark <index>} – Mark a task as done.</li>
      *   <li>{@code unmark <index>} – Mark a task as not done.</li>
      *   <li>{@code delete <index>} – Remove a task.</li>

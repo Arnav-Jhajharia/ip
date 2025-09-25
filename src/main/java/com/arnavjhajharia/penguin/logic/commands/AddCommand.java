@@ -51,10 +51,18 @@ public final class AddCommand implements Command {
         // Validation step for input format
         boolean valid = switch (type) {
             case TODO -> !safe.isBlank();
-            case DEADLINE -> safe.contains("/") && safe.indexOf("/") != safe.length() - 1;
+            case DEADLINE -> {
+                // Accept either "/<date>" or "/by <date>"
+                boolean hasSlash = safe.contains("/") && safe.indexOf("/") != safe.length() - 1;
+                boolean hasByToken = safe.toLowerCase().contains("/by ");
+                yield hasSlash || hasByToken;
+            }
             case EVENT -> {
+                // Accept "/<from> /<to>" or "/from <from> /to <to>"
                 int count = safe.length() - safe.replace("/", "").length();
-                yield count >= 2; // must have at least 2 slashes
+                boolean hasMinTwoSlashes = count >= 2;
+                boolean hasFromToTokens = safe.toLowerCase().contains("/from ") && safe.toLowerCase().contains("/to ");
+                yield hasMinTwoSlashes || hasFromToTokens;
             }
         };
 
@@ -69,8 +77,8 @@ public final class AddCommand implements Command {
     private static String expectedUsage(TaskType type) {
         return switch (type) {
             case TODO -> "todo <description>";
-            case DEADLINE -> "deadline <desc> /<when>";
-            case EVENT -> "event <desc> /<time> /<time>";
+            case DEADLINE -> "deadline <desc> /by <yyyy-MM-dd>";
+            case EVENT -> "event <desc> /from <start> /to <end>";
         };
     }
 }

@@ -77,6 +77,9 @@ public final class Simulator {
                 }
             } catch (PenguinException e) {
                 ui.showError(e.getMessage());
+            } catch (Exception e) {
+                String msg = e.getMessage();
+                ui.showError(msg == null || msg.isBlank() ? "An unexpected error occurred while processing your input." : msg);
             }
         }
     }
